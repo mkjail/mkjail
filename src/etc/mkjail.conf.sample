@@ -1,0 +1,11 @@
+# mkjail config file
+
+# Set your zpool name
+ZPOOL="zroot"
+
+# Set jail root filesystem path
+JAILROOT="/jails"
+
+# Sets you want extracted into new jail
+# options include: base, doc, games (deprecated), kernel, lib32, ports, src
+SETS="base lib32"

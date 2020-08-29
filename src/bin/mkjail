@@ -1,0 +1,97 @@
+#!/bin/sh
+# Lazy, dirty tool for creating fat jails.
+#-
+# Copyright (c) 2019 Mark Felder
+# All rights reserved
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted providing that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+set -e
+set -u
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+if [ $(id -u) -ne 0 ]; then
+    echo "Error: must run as root or with sudo."
+    exit 1
+fi
+
+show_help() {
+cat <<HELP
+usage: mkjail command [options]
+
+Commands:
+    create      -- Create jail
+    getrelease  -- Get FreeBSD release set tarballs
+    update      -- Update jail with latest FreeBSD security/errata patches
+    upgrade     -- Upgrade jail to a newer RELEASE
+
+mkjail.sh: 2019, feld@FreeBSD.org
+
+HELP
+exit 0
+}
+
+[ $# -lt 1 ] && show_help
+
+CMD=$1
+
+MKJAILPATH=`realpath $0`
+if [ "${MKJAILPATH%src/bin/mkjail}" != "${MKJAILPATH}" ]; then
+        # It is running from src/bin/mkjail in checkout
+        MKJAILPREFIX=${MKJAILPATH%/bin/*}
+        set -a
+        . ${MKJAILPREFIX}/etc/mkjail.conf
+        set +a
+elif [ "${MKJAILPATH%/bin/*}" = "${MKJAILPATH}" ]; then
+        # It is running in a build directory or the source checkout as
+        # ./mkjail.  Lookup VPATH to resolve to source checkout if in
+        # build directory.
+        [ -f Makefile ] && VPATH="$(make -V VPATH)"
+        MKJAILPREFIX="${MKJAILPATH%/mkjail}${VPATH:+/${VPATH}}/src"
+        [ -n "${VPATH}" ] && MKJAILPREFIX="$(realpath "${MKJAILPREFIX}")"
+        set -a
+        . ${MKJAILPREFIX}/etc/mkjail.conf
+        set +a
+else
+        # Running from PREFIX/bin/mkjail
+        MKJAILPREFIX=${MKJAILPATH%/bin/*}
+        set -a
+        . ${MKJAILPREFIX}/etc/mkjail.conf
+        set +a
+fi
+
+export SCRIPTPREFIX=${MKJAILPREFIX}/share/mkjail
+SCRIPTPATH="${SCRIPTPREFIX}/${CMD}.sh"
+
+case "${CMD}" in
+create|update|upgrade|getrelease)
+    ;;
+*)
+    echo "Unknown command '${CMD}'"
+    show_help
+    ;;
+esac
+
+: ${SH:=sh}
+
+exec ${SH} "${SCRIPTPATH}" "$@"
