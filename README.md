@@ -1,5 +1,16 @@
 # mkjail
 
+## Origins
+
+This work was created by [Mark Felder](https://github.com/feld) who gave
+Dan Langille the sourcecode.  Dan uploaded it first to [his private git server](https://git.langille.org/dvl/mkjail),
+then to [his GitHub account](https://github.com/dlangille/mkjail).
+
+Shortly thereafter, https://github.com/mkjail/mkjail was created.
+
+# Back to your regularly scheduled program
+
+
 This needs a bit of work yet but I have plans to extend it to make jail
 creation easy without bloating up features. Fat jails, not ezjail style
 jails. And it should permit upgrading them too, as well as fectching dists.
