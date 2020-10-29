@@ -48,11 +48,11 @@ _getrelease()
     cd /var/db/mkjail/releases/${ARCH}/${VERSION}
 
     echo "Fetching release manifest..."
-    fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/MANIFEST || _cleanup
+    fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/MANIFEST || fetch http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/${ARCH}/${VERSION}/MANIFEST || _cleanup
 
     echo "Fetching release tarballs..."
     for i in ${SETS}; do 
-       fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/${i}.txz || _cleanup
+       fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/${i}.txz || fetch http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/${ARCH}/${VERSION}/${i}.txz || _cleanup
     done
 
     _manifest || _cleanup
