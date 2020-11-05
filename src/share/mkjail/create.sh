@@ -70,7 +70,7 @@ _build() {
 # Make sure the release exists
 if [ ! -d /var/db/mkjail/releases/${ARCH}/${VERSION} ]; then
     echo "Release ${VERSION} does not exist. Attempting to fetch..."
-    ${SCRIPTPREFIX}/getrelease.sh -s ${SETS} -v ${VERSION}
+    ${SCRIPTPREFIX}/getrelease.sh -s "${SETS}" -v ${VERSION}
 fi
 
 # Make sure target flavor exists
@@ -86,7 +86,7 @@ zfs create -p ${ZPOOL}/jails/${JAILNAME}
 zfs set mkjail:version=${VERSION} ${ZPOOL}/jails/${JAILNAME}
 
 # Extract the files
-for set in $(echo ${SETS}); do
+for set in $(echo "${SETS}"); do
     echo "Extracting ${set} into ${JAILROOT}/${JAILNAME}..."
     tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/$set.txz -C ${JAILROOT}/${JAILNAME} ;
 done
