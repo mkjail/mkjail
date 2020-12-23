@@ -19,7 +19,7 @@ I'll clean it up soon. I promise.
 
 # howto
 
-This script assumes you're using ZFS. mkjail.sh should be in the same
+This script assumes you're using ZFS. mkjai should be in the same
 root dir as everything else you create below. (yeah, i know...)
 
 1. clone this repo
@@ -34,7 +34,7 @@ root dir as everything else you create below. (yeah, i know...)
 3. make your jail. The -j is the name you want your jail to be.
 
     <pre>
-    # ./src/bin/mkjail.sh create -v 10.3-RELEASE -j testjail -f default
+    # ./src/bin/mkjai create -v 10.3-RELEASE -j testjail -f default
     Creating zroot/jails/testjail...
     Extracting base into /zroot/jails/testjail...
     Extracting doc into /zroot/jails/testjail...
