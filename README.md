@@ -61,10 +61,16 @@ root dir as everything else you create below. (yeah, i know...)
     # service jail start testjail
     </pre>
 
-4. Put the recommendation into your /etc/jail.conf
+4. Put the recommendation into your `/etc/jail.conf`:
 
-5. sysrc jail_enable=YES
+    <pre>
+    sysrc jail_enable=YES
+    </pre>
 
-6. service jail start testjail
+6. Then issue this command:
+
+    <pre>
+    service jail start testjail
+    </pre>
 
 Have fun.
