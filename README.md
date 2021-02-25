@@ -12,14 +12,14 @@ Shortly thereafter, https://github.com/mkjail/mkjail was created.
 
 
 This needs a bit of work yet but I have plans to extend it to make jail
-creation easy without bloating up features. Fat jails, not ezjail style
+creation easy without bloating up features. Fat jails, not `ezjail`-style
 jails. And it should permit upgrading them too, as well as fectching dists.
 
 I'll clean it up soon. I promise.
 
 # howto
 
-This script assumes you're using ZFS. mkjai should be in the same
+This script assumes you're using ZFS. `mkjail` should be in the same
 root dir as everything else you create below. (yeah, i know...)
 
 1. clone this repo
