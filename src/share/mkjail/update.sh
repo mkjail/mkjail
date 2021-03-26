@@ -25,7 +25,7 @@ _alljails()
         echo "Updating ${JAILNAME} jail..."
         echo ""
         export UNAME_r=$(_get_version)
-        freebsd-update -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf -F fetch install
+        PAGER=cat freebsd-update -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf -F fetch install
         _set_version
       fi
       echo ""
@@ -38,7 +38,7 @@ _onejail()
     echo "Updating ${JAILNAME} jail..."
     echo ""
     export UNAME_r=$(_get_version)
-    freebsd-update -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf -F fetch install
+    PAGER=cat freebsd-update -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf -F fetch install
     _set_version
     exit 0
 }

@@ -16,7 +16,7 @@ _cleanup()
 
 _manifest()
 {
-    for DIST in ${SETS}; do
+    for DIST in $(echo "${SETS}"); do
         DIST="${DIST}.txz"
         CK=`sha256 -q /var/db/mkjail/releases/${ARCH}/${VERSION}/${DIST}`
         awk -v checksum=$CK -v DIST=$DIST -v found=0 '{
@@ -41,18 +41,18 @@ _manifest()
 _getrelease()
 {
     # Ensure we always have src in the sets
-    SETS=$(echo -n ${SETS} src | tr ' ' '\n' | sort -u | tr '\n' ' ')
+    SETS=$(echo "${SETS}" src | awk -v RS="[ \n]+" '!n[$0]++')
 
     mkdir -p /var/db/mkjail/releases/${ARCH}/${VERSION}
 
     cd /var/db/mkjail/releases/${ARCH}/${VERSION}
 
     echo "Fetching release manifest..."
-    fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/MANIFEST || _cleanup
+    fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/MANIFEST || fetch http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/${ARCH}/${VERSION}/MANIFEST || _cleanup
 
     echo "Fetching release tarballs..."
-    for i in ${SETS}; do 
-       fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/${i}.txz || _cleanup
+    for i in $(echo "${SETS}"); do 
+       fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/${i}.txz || fetch http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/${ARCH}/${VERSION}/${i}.txz || _cleanup
     done
 
     _manifest || _cleanup
@@ -90,7 +90,7 @@ exit_opts_req() {
 
 # option parsing has to happen below the show_help
 # shift to skip the first argument or getopts loses its mind
-shift
+#shift
 while getopts "hs:v:" opt; do
     case ${opt} in
         h)  show_help

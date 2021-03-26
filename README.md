@@ -1,14 +1,25 @@
 # mkjail
 
+## Origins
+
+This work was created by [Mark Felder](https://github.com/feld) who gave
+Dan Langille the sourcecode.  Dan uploaded it first to [his private git server](https://git.langille.org/dvl/mkjail),
+then to [his GitHub account](https://github.com/dlangille/mkjail).
+
+Shortly thereafter, https://github.com/mkjail/mkjail was created.
+
+# Back to your regularly scheduled program
+
+
 This needs a bit of work yet but I have plans to extend it to make jail
-creation easy without bloating up features. Fat jails, not ezjail style
+creation easy without bloating up features. Fat jails, not `ezjail`-style
 jails. And it should permit upgrading them too, as well as fectching dists.
 
 I'll clean it up soon. I promise.
 
 # howto
 
-This script assumes you're using ZFS. mkjail should be in the same
+This script assumes you're using ZFS. `mkjail` should be in the same
 root dir as everything else you create below. (yeah, i know...)
 
 1. clone this repo
@@ -50,10 +61,16 @@ root dir as everything else you create below. (yeah, i know...)
     # service jail start testjail
     </pre>
 
-4. Put the recommendation into your /etc/jail.conf
+4. Put the recommendation into your `/etc/jail.conf`:
 
-5. sysrc jail_enable=YES
+    <pre>
+    sysrc jail_enable=YES
+    </pre>
 
-6. service jail start testjail
+6. Then issue this command:
+
+    <pre>
+    service jail start testjail
+    </pre>
 
 Have fun.
