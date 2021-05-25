@@ -16,7 +16,7 @@ usage: mkjail create [-j JAILNAME] [-a ARCH] [-v VERSION] [-f FLAVOUR] [-s "SETS
 	-f Flavour (copy in files after creation)
 	-h View this help
 	-j Jail name
-	-s Sets: "base doc games lib32"
+	-s Sets: "base lib32"
 	-v Version of jail (9.3-RELEASE, 10.1-RELEASE, etc)
 
 mkjail.sh: 2019, feld@FreeBSD.org
