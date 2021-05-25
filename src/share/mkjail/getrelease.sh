@@ -106,7 +106,7 @@ done
 
 shift $(($OPTIND - 1))
 
-if [ ${vflag} = 0 ]; then
+if [ ${vflag} -eq 0 ]; then
     exit_opts_req
 fi
 
