@@ -89,8 +89,11 @@ exit_opts_req() {
 }
 
 # option parsing has to happen below the show_help
-# shift to skip the first argument or getopts loses its mind
-shift
+# shift to skip the first argument or getopts loses its mind, but
+# only if SCRIPTPREFIX has not been set by mkjail.sh
+# This means we are calling getrelease directly via ./mkjail getrelease
+# vs indirectly via ./mkjail create
+[ -z ${SCRIPTPREFIX} ] && shift
 while getopts "hs:v:" opt; do
     case ${opt} in
         h)  show_help
