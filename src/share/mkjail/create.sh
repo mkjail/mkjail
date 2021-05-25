@@ -70,7 +70,7 @@ _build() {
 # Make sure the release exists
 if [ ! -d /var/db/mkjail/releases/${ARCH}/${VERSION} ]; then
     echo "Release ${VERSION} does not exist. Attempting to fetch..."
-    ${SCRIPTPREFIX}/getrelease.sh -s "${SETS}" -v ${VERSION}
+    ${SCRIPTPREFIX}/getrelease.sh FAKEARG -s "${SETS}" -v ${VERSION}
 fi
 
 # Make sure target flavor exists
