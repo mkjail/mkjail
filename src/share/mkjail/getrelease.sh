@@ -90,7 +90,7 @@ exit_opts_req() {
 
 # option parsing has to happen below the show_help
 # shift to skip the first argument or getopts loses its mind
-#shift
+shift
 while getopts "hs:v:" opt; do
     case ${opt} in
         h)  show_help
@@ -106,7 +106,7 @@ done
 
 shift $(($OPTIND - 1))
 
-if [ ${vflag} = 0 ]; then
+if [ ${vflag} -eq 0 ]; then
     exit_opts_req
 fi
 

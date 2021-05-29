@@ -7,5 +7,5 @@ ZPOOL="zroot"
 JAILROOT="/jails"
 
 # Sets you want extracted into new jail
-# options include: base, doc, games (deprecated), kernel, lib32, ports, src
+# options include: base-dbg, base, kernel-dbg, kernel, lib32-dbg, lib32, ports, src tests
 SETS="base lib32"

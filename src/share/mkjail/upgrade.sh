@@ -155,20 +155,20 @@ while getopts "ahj:v:" opt; do
     esac
 done
 
-if [ ${vflag} = 0 ]; then
+if [ ${vflag} -eq 0 ]; then
     show_help
 fi
 
-if [ ${aflag} = 1 ] && [ ${jflag} = 1 ]; then
+if [ ${aflag} -eq 1 ] && [ ${jflag} -eq 1 ]; then
     show_help
 fi
 
-if [ ${aflag} = 1 ]; then
+if [ ${aflag} -eq 1 ]; then
     SRCPATH="$(zfs get -H mountpoint ${ZPOOL}/mkjail | awk '{print $3}')/${TARGETVER}"
     _alljails
 fi
 
-if [ ${jflag} = 1 ]; then
+if [ ${jflag} -eq 1 ]; then
     SRCPATH="$(zfs get -H mountpoint ${ZPOOL}/mkjail | awk '{print $3}')/${TARGETVER}"
     _upgradejail
 fi
