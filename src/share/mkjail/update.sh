@@ -7,12 +7,12 @@ PAGER=cat
 _set_version()
 {
     local NEWJAILVER=$(${JAILROOT}/${JAILNAME}/bin/freebsd-version -u)
-    zfs set mkjail:version=${NEWJAILVER} ${ZPOOL}${JAILROOT}/${JAILNAME}
+    zfs set mkjail:version="${NEWJAILVER}" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 }
 
 _get_version()
 {
-    zfs get -Hp mkjail:version ${JAILROOT}/${JAILNAME} | awk '{print $3}' | sed -E 's,-p[0-9]+,,'
+    zfs get -Hp mkjail:version "${ZPOOL}/${JAILDATASET}/${JAILNAME}" | awk '{print $3}' | sed -E 's,-p[0-9]+,,'
 }
 
 _alljails()

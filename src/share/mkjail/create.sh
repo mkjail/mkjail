@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+. "$SCRIPTPREFIX/lib.sh"
+
 : ${ARCH=$(uname -m)}
 
 ip4int=$(route -4 get default | awk '/interface: / {print $2}')
@@ -66,6 +68,15 @@ then
     exit_opts_req
 fi
 
+_init() {
+    # From mkjail.conf
+    #   ZPOOL
+    #   JAILDATASET
+    #   JAILROOT
+
+    create_zfs_dataset "$ZPOOL/$JAILDATASET" "$JAILROOT"
+}
+
 _build() {
 # Make sure the release exists
 if [ ! -d /var/db/mkjail/releases/${ARCH}/${VERSION} ]; then
@@ -80,10 +91,9 @@ if [ x"${fflag}" = x1 ] && [ ! -d /var/db/mkjail/flavours/${FLAVOUR} ]; then
 fi
 
 # Create the ZFS filesystem
-echo "Creating ${ZPOOL}/jails/${JAILNAME}..."
-zfs create -p -o mountpoint=/jails ${ZPOOL}/jails
-zfs create -p ${ZPOOL}/jails/${JAILNAME}
-zfs set mkjail:version=${VERSION} ${ZPOOL}/jails/${JAILNAME}
+echo "Creating ${ZPOOL}/${JAILDATASET}/${JAILNAME}..."
+zfs create "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
+zfs set mkjail:version="${VERSION}" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 
 # Extract the files
 for set in $(echo "${SETS}"); do
@@ -133,5 +143,6 @@ and then you can start the jail like so:
 DOCS
 }
 
+_init
 _build
 _docs
