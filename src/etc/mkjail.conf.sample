@@ -3,9 +3,15 @@
 # Set your zpool name
 ZPOOL="zroot"
 
+# Set the jail dataset name (without the zpool name)
+# DEFAULT: jails
+JAILDATASET="jails"
+
 # Set jail root filesystem path
+# DEFAULT: /jails
 JAILROOT="/jails"
 
 # Sets you want extracted into new jail
 # options include: base-dbg, base, kernel-dbg, kernel, lib32-dbg, lib32, ports, src tests
+# DEFAULT: base
 SETS="base lib32"
