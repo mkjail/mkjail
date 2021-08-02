@@ -14,19 +14,19 @@ TARGETVER=null
 _set_version()
 {
     local NEWJAILVER=$(${JAILROOT}/${JAILNAME}/bin/freebsd-version -u)
-    zfs set mkjail:version=${NEWJAILVER} ${ZPOOL}${JAILROOT}/${JAILNAME}
+    zfs set mkjail:version="${NEWJAILVER}" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 }
 
 _get_version()
 {
-    zfs get -Hp mkjail:version ${1} | awk '{print $3}' | sed -E 's,-p[0-9]+,,'
+    zfs get -Hp mkjail:version "${1}" | awk '{print $3}' | sed -E 's,-p[0-9]+,,'
 }
 
 _upgradejail()
 {
     _validate
     _snapshot
-    JAILVER=$(_get_version ${JAILROOT}/${JAILNAME})
+    JAILVER=$(_get_version "${ZPOOL}/${JAILDATASET}/${JAILNAME}")
     echo "Upgrading ${JAILNAME} jail from ${JAILVER} to ${TARGETVER}..."
     echo ""
     chflags -f noschg ${JAILROOT}/${JAILNAME}/var/empty
@@ -80,7 +80,7 @@ _validate()
     fi
 
     # Capture mkjail:version zfs property for rollback
-    export MKJAILVER="$(zfs get -H mkjail:version ${JAILROOT}/${JAILNAME} | awk '{print $3}')"
+    export MKJAILVER="$(zfs get -H mkjail:version "${ZPOOL}/${JAILDATASET}/${JAILNAME}" | awk '{print $3}')"
 
     # Check if we have the sets for the target version we are upgrading to
     [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/base.txz ] || _getrelease
@@ -98,18 +98,18 @@ _getrelease()
 
 _snapshot()
 {
-    zfs snapshot ${ZPOOL}${JAILROOT}/${JAILNAME}@${SNAPNAME}
+    zfs snapshot "${ZPOOL}/${JAILDATASET}/${JAILNAME}@${SNAPNAME}"
 }
 
 _rollback()
 {
     umount -f ${JAILROOT}/${JAILNAME}/usr/src
-    zfs rollback -r ${ZPOOL}${JAILROOT}/${JAILNAME}@${SNAPNAME}
+    zfs rollback -r "${ZPOOL}/${JAILDATASET}/${JAILNAME}@${SNAPNAME}"
 }
 
 _rmsnap()
 {
-    zfs destroy -r ${ZPOOL}${JAILROOT}/${JAILNAME}@${SNAPNAME}
+    zfs destroy -r "${ZPOOL}/${JAILDATASET}/${JAILNAME}@${SNAPNAME}"
 }
 
 _cleanup()
@@ -118,7 +118,7 @@ _cleanup()
     echo "Upgrade cancelled: reverting changes and cleaning up."
     _rollback
     _rmsnap
-    zfs set mkjail:version=${MKJAILVER} ${ZPOOL}${JAILROOT}/${JAILNAME}
+    zfs set mkjail:version="${MKJAILVER}" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
     exit 1
 }
 

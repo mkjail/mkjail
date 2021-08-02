@@ -1,11 +1,24 @@
 # mkjail config file
 
 # Set your zpool name
+# New filesystems are created in this pool.
 ZPOOL="zroot"
 
-# Set jail root filesystem path
+# Set the jail dataset name (without the zpool name).
+# For example, jail foo will be created in $ZPOOL/$JAILDATASET/foo
+# DEFAULT: jails
+JAILDATASET="jails"
+
+# Set jail root filesystem path.
+# This is where the jails are mounted.
+# DEFAULT: /jails
 JAILROOT="/jails"
 
-# Sets you want extracted into new jail
+# The SETS which you want extracted into each new jail.
+#
 # options include: base-dbg, base, kernel-dbg, kernel, lib32-dbg, lib32, ports, src tests
-SETS="base lib32"
+# DEFAULT: base
+#
+# NOTE: src is always downloaded, regardless. It is needed when upgrading in
+# order to do a proper 3-way merge.[A
+SETS="base"
