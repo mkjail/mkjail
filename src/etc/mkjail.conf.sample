@@ -20,5 +20,5 @@ JAILROOT="/jails"
 # DEFAULT: base
 #
 # NOTE: src is always downloaded, regardless. It is needed when upgrading in
-# order to do a proper 3-way merge.[A
+# order to do a proper 3-way merge.
 SETS="base"
