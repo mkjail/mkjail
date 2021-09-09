@@ -9,6 +9,10 @@ ZPOOL="zroot"
 # DEFAULT: jails
 JAILDATASET="jails"
 
+# mkjail will create $ZPOOL/$MKJAILDATASET/${VERSION}
+# by default, this is mkjail
+MKJAILDATASET="mkjail"
+
 # Set jail root filesystem path.
 # This is where the jails are mounted.
 # DEFAULT: /jails
