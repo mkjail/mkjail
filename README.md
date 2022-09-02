@@ -32,15 +32,6 @@ if [ -d ${JAILROOT}/${JAILNAME}/usr/lib32 ] ; then
 When running getrelease, I advise not specifying the `-s` parameter. Just
 let the `mkjail.conf` configuration file do its work.
 
-# Back to your regularly scheduled program
-
-
-This needs a bit of work yet but I have plans to extend it to make jail
-creation easy without bloating up features. Fat jails, not `ezjail`-style
-jails. And it should permit upgrading them too, as well as fectching dists.
-
-I'll clean it up soon. I promise.
-
 # howto
 
 This script assumes you're using ZFS. `mkjail` should be in the same
