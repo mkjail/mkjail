@@ -17,12 +17,6 @@ then to [his GitHub account](https://github.com/dlangille/mkjail).
 
 Shortly thereafter, https://github.com/mkjail/mkjail was created.
 
-# Configuration
-
-My use has shown that `SETS` (declared within `mkjail.conf`) needs to contain
-at least both `base` & `lib32` if your jail contains `/usr/lib32` (see line
-36 or so of `src/share/mkjail/upgrade.sh` where you should see:
-
 ```
 if [ -d ${JAILROOT}/${JAILNAME}/usr/lib32 ] ; then
 ```
