@@ -31,11 +31,9 @@ _upgradejail()
     echo ""
     chflags -f noschg ${JAILROOT}/${JAILNAME}/var/empty
     chflags -f noschg ${JAILROOT}/${JAILNAME}/usr/src
-    find ${JAILROOT}/${JAILNAME}/lib ${JAILROOT}/${JAILNAME}/usr/lib ${JAILROOT}/${JAILNAME}/usr/bin ${JAILROOT}/${JAILNAME}/libexec ${JAILROOT}/${JAILNAME}/sbin ${JAILROOT}/${JAILNAME}/bin -type f -flags +schg -exec chflags noschg {} \+ || _cleanup
-    tar --exclude=etc -xzpf /var/db/mkjail/releases/${ARCH}/${TARGETVER}/base.txz -C ${JAILROOT}/${JAILNAME}/ || _cleanup
+    tar --clear-nochange-fflags --exclude=etc -xzpf /var/db/mkjail/releases/${ARCH}/${TARGETVER}/base.txz -C ${JAILROOT}/${JAILNAME}/ || _cleanup
     if [ -d ${JAILROOT}/${JAILNAME}/usr/lib32 ] ; then
-        find ${JAILROOT}/${JAILNAME}/usr/lib32 -type f -flags +schg -exec chflags noschg {} \+ || _cleanup
-        tar --exclude=etc -xzpf /var/db/mkjail/releases/${ARCH}/${TARGETVER}/lib32.txz -C ${JAILROOT}/${JAILNAME}/ || _cleanup
+        tar --clear-nochange-fflags --exclude=etc -xzpf /var/db/mkjail/releases/${ARCH}/${TARGETVER}/lib32.txz -C ${JAILROOT}/${JAILNAME}/ || _cleanup
     fi
     mkdir -p ${JAILROOT}/${JAILNAME}/usr/src && mount -t nullfs -oro ${SRCPATH}/usr/src ${JAILROOT}/${JAILNAME}/usr/src
     jexec ${JAILNAME} etcupdate resolve || _cleanup
