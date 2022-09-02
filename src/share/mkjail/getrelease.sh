@@ -40,8 +40,8 @@ _manifest()
 
 _getrelease()
 {
-    # Ensure we always have src in the sets
-    SETS=$(echo "${SETS}" src | awk -v RS="[ \n]+" '!n[$0]++')
+    # Ensure we always have src and lib32 in the sets
+    SETS=$(echo "${SETS}" src lib32 | awk -v RS="[ \n]+" '!n[$0]++')
 
     mkdir -p /var/db/mkjail/releases/${ARCH}/${VERSION}
 
