@@ -123,7 +123,7 @@ cat <<DOCS
 Now put something like the following in /etc/jail.conf:
 
 exec.start = "/bin/sh /etc/rc";
-exec.stop = "/bin/sh /etc/rc.shutdown";
+exec.stop = "/bin/sh /etc/rc.shutdown jail";
 exec.clean;
 mount.devfs;
 path = ${JAILROOT}/\$name;
