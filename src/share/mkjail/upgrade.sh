@@ -162,12 +162,12 @@ if [ ${aflag} -eq 1 ] && [ ${jflag} -eq 1 ]; then
 fi
 
 if [ ${aflag} -eq 1 ]; then
-    SRCPATH="$(zfs get -H mountpoint ${ZPOOL}/${MKJAILDATASET} | awk '{print $3}')/${TARGETVER}"
+    SRCPATH="$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')/${TARGETVER}"
     _alljails
 fi
 
 if [ ${jflag} -eq 1 ]; then
-    SRCPATH="$(zfs get -H mountpoint ${ZPOOL}/${MKJAILDATASET} | awk '{print $3}')/${TARGETVER}"
+    SRCPATH="$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')/${TARGETVER}"
     _upgradejail
 fi
 
