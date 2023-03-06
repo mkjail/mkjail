@@ -17,10 +17,6 @@ then to [his GitHub account](https://github.com/dlangille/mkjail).
 
 Shortly thereafter, https://github.com/mkjail/mkjail was created.
 
-```
-if [ -d ${JAILROOT}/${JAILNAME}/usr/lib32 ] ; then
-```
-
 # getrelease
 
 When running getrelease, I advise not specifying the `-s` parameter. Just
