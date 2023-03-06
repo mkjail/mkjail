@@ -63,6 +63,7 @@ _load_config() {
 
     # set defaults
     : "${ZPOOL:=""}"
+    : "${ZPOOL_MKJAIL_DB:=${ZPOOL}}"
     : "${JAILDATASET:="jails"}"
     : "${MKJAILDATASET:="mkjail"}"
     : "${JAILROOT:="/jails"}"
@@ -88,7 +89,7 @@ _load_config() {
 
     check_zfs_dataset_config "$ZPOOL/$JAILDATASET" "$JAILROOT" "$config_file"
 
-    export ZPOOL JAILDATASET MKJAILDATASET JAILROOT SETS
+    export ZPOOL ZPOOL_MKJAIL_DB JAILDATASET MKJAILDATASET JAILROOT SETS
 }
 
 [ $# -lt 1 ] && show_help
