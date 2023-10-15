@@ -82,7 +82,6 @@ _validate()
 
     # Check if we have the sets for the target version we are upgrading to
     [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/base.txz ] || _getrelease
-    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/lib32.txz ] || _getrelease
     [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/src.txz ] || _getrelease
     [ -d ${SRCPATH} ] || _getrelease
 }
