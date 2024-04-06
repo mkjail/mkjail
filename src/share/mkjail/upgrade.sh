@@ -83,9 +83,9 @@ _validate()
     export MKJAILVER="$(zfs get -H mkjail:version ${JAILROOT}/${JAILNAME} | awk '{print $3}')"
 
     # Check if we have the sets for the target version we are upgrading to
-    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/base.txz ] || _getrelease
-    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/lib32.txz ] || _getrelease
-    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/src.txz ] || _getrelease
+    for DIST in $(echo "${SETS}"); do
+      [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/${DIST}.txz ]  || _getrelease
+    done
     [ -d ${SRCPATH} ] || _getrelease
 }
 
