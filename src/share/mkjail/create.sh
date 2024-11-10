@@ -5,8 +5,8 @@ set -e
 
 : ${ARCH=$(uname -m)}
 
-ip4int=$(route -4 get default | awk '/interface: / {print $2}')
-ip6int=$(route -6 get default | awk '/interface: / {print $2}')
+ip4int=$(route -4 get default >/dev/null 2>&1 | awk '/interface: / {print $2}')
+ip6int=$(route -6 get default >/dev/null 2>&1 | awk '/interface: / {print $2}')
 ip4guess=$(ifconfig ${ip4int} | awk '/inet / && !/127.0/ {print $2}' | head -n 1)
 ip6guess=$(ifconfig ${ip6int} | awk '/inet6 / && !/(fe80| ::1)/ {print $2}' | head -n 1)
 
