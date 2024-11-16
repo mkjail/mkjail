@@ -71,10 +71,9 @@ _validate()
     fi
 
     # Ensure jail is actually running
-    jls -j ${JAILNAME} 2> /dev/null 1> /dev/null
-    if [ ${?} -ne "0" ]; then
-        echo "Error: jail ${JAILNAME} not running."
-        exit 1
+    if ! jls -j ${JAILNAME} >/dev/null 2>&1 ; then
+      echo "Error: jail ${JAILNAME} not running."
+      exit 1
     fi
 
     # Capture mkjail:version zfs property for rollback
