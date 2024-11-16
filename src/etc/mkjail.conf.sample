@@ -13,6 +13,10 @@ JAILDATASET="jails"
 # by default, this is mkjail
 MKJAILDATASET="mkjail"
 
+# The zpool where you want the /var/db/mkjail files to be located.
+# This defaults to the ZPOOL value defined above.
+#ZPOOL_MKJAIL_DB="${ZROOT}"
+
 # Set jail root filesystem path.
 # This is where the jails are mounted.
 # DEFAULT: /jails

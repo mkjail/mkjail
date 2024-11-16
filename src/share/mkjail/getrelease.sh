@@ -57,13 +57,13 @@ _getrelease()
 
     _manifest || _cleanup
 
-    zfs create -p ${ZPOOL}/${MKJAILDATASET}/${VERSION}
+    zfs create -p ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}
 
-    if [ "$(zfs get -H mountpoint ${ZPOOL}/${MKJAILDATASET} | awk '{print $3}')" = "none" ]; then
-        zfs set mountpoint=/mkjail ${ZPOOL}/${MKJAILDATASET}
+    if [ "$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')" = "none" ]; then
+        zfs set mountpoint=/mkjail ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}
     fi
 
-    SRCPATH="$(zfs get -H mountpoint ${ZPOOL}/${MKJAILDATASET} | awk '{print $3}')/${VERSION}"
+    SRCPATH="$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')/${VERSION}"
 
     echo "Extracting src for use in jail upgrades..."
     tar -xzpf /var/db/mkjail/releases/${ARCH}/${VERSION}/src.txz -C ${SRCPATH}/
