@@ -79,6 +79,7 @@ usage: mkjail getrelease [-s "SETS"] [-v VERSION]
 mkjail.sh: 2019, feld@FreeBSD.org
 
 HELP
+exit 0
 }
 
 exit_opts_req() {
