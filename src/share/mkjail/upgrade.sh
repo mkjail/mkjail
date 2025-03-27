@@ -126,6 +126,7 @@ usage: mkjail upgrade [-a] [-v TARGETVER] | [-j JAILNAME] [-v TARGETVER]
         -a Upgrade all running jails
         -h Show help
         -j Jail name
+        -p [y|n] whether or not to upgrade packages (y = default)
         -v FreeBSD version (e.g., 11.1-RELEASE)
 
 mkjail.sh: 2019, feld@FreeBSD.org
