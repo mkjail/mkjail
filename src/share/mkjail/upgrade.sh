@@ -6,9 +6,11 @@ trap _cleanup HUP INT QUIT KILL TERM ABRT
 aflag=0
 jflag=0
 vflag=0
+pflag=0
 PAGER=cat
 SNAPNAME="mkjail-$(date '+%Y%m%d%H%M')"
 TARGETVER=null
+PKG_REFRESH="y"
 : ${ARCH=$(uname -m)}
 
 _set_version()
@@ -38,13 +40,19 @@ _upgradejail()
     mkdir -p ${JAILROOT}/${JAILNAME}/usr/src && mount -t nullfs -oro ${SRCPATH}/usr/src ${JAILROOT}/${JAILNAME}/usr/src
     jexec ${JAILNAME} etcupdate resolve || _cleanup
     jexec ${JAILNAME} etcupdate -F || _cleanup
-    jexec ${JAILNAME} /usr/local/sbin/pkg delete -fy pkg || _cleanup
-    ASSUME_ALWAYS_YES=yes jexec ${JAILNAME} /usr/sbin/pkg bootstrap || _cleanup
-    jexec ${JAILNAME} /bin/rm -f /var/db/pkg/*.meta || _cleanup
-    jexec ${JAILNAME} /usr/local/sbin/pkg-static update || _cleanup
-    jexec ${JAILNAME} /usr/local/sbin/pkg-static upgrade -fy || _cleanup
+
+    if [ $PKG_REFRESH = 'y' ]; then
+      # do the package upgrade
+      jexec ${JAILNAME} /usr/local/sbin/pkg delete -fy pkg || _cleanup
+      ASSUME_ALWAYS_YES=yes jexec ${JAILNAME} /usr/sbin/pkg bootstrap || _cleanup
+      jexec ${JAILNAME} /bin/rm -f /var/db/pkg/*.meta || _cleanup
+      jexec ${JAILNAME} /usr/local/sbin/pkg-static update || _cleanup
+      jexec ${JAILNAME} /usr/local/sbin/pkg-static upgrade -fy || _cleanup
+    fi
+
     yes | jexec ${JAILNAME} make -C /usr/src delete-old
     yes | jexec ${JAILNAME} make -C /usr/src delete-old-libs
+
     umount -f ${JAILROOT}/${JAILNAME}/usr/src
     PAGER=cat freebsd-update -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf --currently-running ${TARGETVER} -F fetch install
     rm -rf ${JAILROOT}/${JAILNAME}/boot ${JAILROOT}/${JAILNAME}/src
@@ -73,6 +81,12 @@ _validate()
     # Ensure jail is actually running
     if ! jls -j ${JAILNAME} >/dev/null 2>&1 ; then
       echo "Error: jail ${JAILNAME} not running."
+      exit 1
+    fi
+
+    # check PKG_REFRESH y or n
+    if [ $PKG_REFRESH != 'y' ] && [ $PKG_REFRESH != 'n' ]; then
+      echo "Error: pkgflag must be y or n."
       exit 1
     fi
 
@@ -121,13 +135,14 @@ _cleanup()
 
 show_help() {
 cat <<HELP
-usage: mkjail upgrade [-a] [-v TARGETVER] | [-j JAILNAME] [-v TARGETVER]
+usage: mkjail upgrade [-a] [-v TARGETVER] | [-j JAILNAME] [-v TARGETVER] [-p y/n]
 
         -a Upgrade all running jails
         -h Show help
         -j Jail name
         -p [y|n] whether or not to upgrade packages (y = default)
         -v FreeBSD version (e.g., 11.1-RELEASE)
+        -p pkg flag, y or n - do you want to upgrade the packages - defaults to y - never specify n if changing major versions.
 
 mkjail.sh: 2019, feld@FreeBSD.org
 
@@ -138,7 +153,7 @@ exit 0
 # option parsing has to happen below the show_help
 # shift to skip the first argument or getopts loses its mind
 shift
-while getopts "ahj:v:" opt; do
+while getopts "ahj:v:p:" opt; do
     case "${opt}" in
         a)  aflag=1
             ;;
@@ -147,6 +162,8 @@ while getopts "ahj:v:" opt; do
         j)  jflag=1; JAILNAME=${OPTARG}
             ;;
         v)  vflag=1; TARGETVER=${OPTARG}
+            ;;
+        p)  pflag=1; PKG_REFRESH=${OPTARG}
             ;;
         *)  show_help
             ;;
