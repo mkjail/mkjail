@@ -54,7 +54,7 @@ _upgradejail()
     yes | jexec ${JAILNAME} make -C /usr/src delete-old-libs
 
     umount -f ${JAILROOT}/${JAILNAME}/usr/src
-    PAGER=cat freebsd-update -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf --currently-running ${TARGETVER} -F fetch install
+    PAGER=cat freebsd-update --not-running-from-cron -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf --currently-running ${TARGETVER} -F fetch install
     rm -rf ${JAILROOT}/${JAILNAME}/boot ${JAILROOT}/${JAILNAME}/src
     _set_version
 }
