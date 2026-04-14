@@ -31,12 +31,27 @@ _upgradejail()
     JAILVER=$(_get_version "${ZPOOL}/${JAILDATASET}/${JAILNAME}")
     echo "Upgrading ${JAILNAME} jail from ${JAILVER} to ${TARGETVER}..."
     echo ""
+
+    # Temporarily mount the release dataset
+    RELPATH="/tmp/mkjail-${TARGETVER}"
+    mkdir -p "${RELPATH}"
+    zfs set mountpoint="${RELPATH}" "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}"
+    zfs mount "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}"
+
+    # Temporarily mount the src child dataset
+    SRCPATH="${RELPATH}/src"
+    mkdir -p "${SRCPATH}"
+    zfs set mountpoint="${SRCPATH}" "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}/src"
+    zfs mount "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}/src"
+
     chflags -f noschg ${JAILROOT}/${JAILNAME}/var/empty
     chflags -f noschg ${JAILROOT}/${JAILNAME}/usr/src
-    tar --clear-nochange-fflags --exclude=etc -xzpf /var/db/mkjail/releases/${ARCH}/${TARGETVER}/base.txz -C ${JAILROOT}/${JAILNAME}/ || _cleanup
-    if [ -d ${JAILROOT}/${JAILNAME}/usr/lib32 ] ; then
-        tar --clear-nochange-fflags --exclude=etc -xzpf /var/db/mkjail/releases/${ARCH}/${TARGETVER}/lib32.txz -C ${JAILROOT}/${JAILNAME}/ || _cleanup
-    fi
+
+    # Extract the target release over the existing jail, preserving /etc
+    echo "Applying ${TARGETVER} release to jail..."
+    (cd ${RELPATH} && tar -cf - --exclude=etc --exclude=src .) | tar -xf - -C ${JAILROOT}/${JAILNAME}/ --clear-nochange-fflags || _cleanup
+
+    # Mount src from the target release
     mkdir -p ${JAILROOT}/${JAILNAME}/usr/src && mount -t nullfs -oro ${SRCPATH}/usr/src ${JAILROOT}/${JAILNAME}/usr/src
     jexec ${JAILNAME} etcupdate resolve || _cleanup
     jexec ${JAILNAME} etcupdate -F || _cleanup
@@ -53,7 +68,14 @@ _upgradejail()
     yes | jexec ${JAILNAME} make -C /usr/src delete-old
     yes | jexec ${JAILNAME} make -C /usr/src delete-old-libs
 
+    # Unmount src from the jail
     umount -f ${JAILROOT}/${JAILNAME}/usr/src
+
+    # Unmount temp release datasets and set back to none
+    zfs unmount -f "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}"
+    zfs set mountpoint=none "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}"
+    rm -rf "${RELPATH}"
+
     PAGER=cat freebsd-update --not-running-from-cron -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf --currently-running ${TARGETVER} -F fetch install
     rm -rf ${JAILROOT}/${JAILNAME}/boot ${JAILROOT}/${JAILNAME}/src
     _set_version
@@ -93,16 +115,15 @@ _validate()
     # Capture mkjail:version zfs property for rollback
     export MKJAILVER="$(zfs get -H mkjail:version "${ZPOOL}/${JAILDATASET}/${JAILNAME}" | awk '{print $3}')"
 
-    # Check if we have the sets for the target version we are upgrading to
-    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/base.txz ] || _getrelease
-    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/lib32.txz ] || _getrelease
-    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/src.txz ] || _getrelease
-    [ -d ${SRCPATH} ] || _getrelease
+    # Check if we have the ZFS dataset for the target version we are upgrading to
+    if ! zfs list -H -o name "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}/src" >/dev/null 2>&1; then
+      _getrelease
+    fi
 }
 
 _getrelease()
 {
-    echo "Missing required sets for ${TARGETVER}."
+    echo "Missing required release dataset for ${TARGETVER}."
     echo "Please run 'mkjail getrelease' for the version you want to upgrade to."
     exit 1
 }
@@ -114,7 +135,11 @@ _snapshot()
 
 _rollback()
 {
-    umount -f ${JAILROOT}/${JAILNAME}/usr/src
+    umount -f ${JAILROOT}/${JAILNAME}/usr/src 2>/dev/null || true
+    # Unmount temp release datasets if still mounted
+    zfs unmount -f "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}" 2>/dev/null || true
+    zfs set mountpoint=none "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}" 2>/dev/null || true
+    rm -rf "/tmp/mkjail-${TARGETVER}"
     zfs rollback -r "${ZPOOL}/${JAILDATASET}/${JAILNAME}@${SNAPNAME}"
 }
 
@@ -179,12 +204,10 @@ if [ ${aflag} -eq 1 ] && [ ${jflag} -eq 1 ]; then
 fi
 
 if [ ${aflag} -eq 1 ]; then
-    SRCPATH="$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')/${TARGETVER}"
     _alljails
 fi
 
 if [ ${jflag} -eq 1 ]; then
-    SRCPATH="$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')/${TARGETVER}"
     _upgradejail
 fi
 

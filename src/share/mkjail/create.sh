@@ -78,9 +78,9 @@ _init() {
 }
 
 _build() {
-# Make sure the release exists
-if [ ! -d /var/db/mkjail/releases/${ARCH}/${VERSION} ]; then
-    echo "Release ${VERSION} does not exist. Attempting to fetch..."
+# Make sure the release ZFS dataset exists
+if ! zfs list -H -o name "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}/src" >/dev/null 2>&1; then
+    echo "Release ${VERSION} ZFS dataset does not exist. Building it from local tarballs or fetching..."
     ${SCRIPTPREFIX}/getrelease.sh FAKEARG -s "${SETS}" -v ${VERSION}
 fi
 
@@ -90,16 +90,11 @@ if [ x"${fflag}" = x1 ] && [ ! -d /var/db/mkjail/flavours/${FLAVOUR} ]; then
     exit 1
 fi
 
-# Create the ZFS filesystem
-echo "Creating ${ZPOOL}/${JAILDATASET}/${JAILNAME}..."
-zfs create "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
+# Clone the release snapshot to create the jail filesystem
+echo "Cloning ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}@clean to ${ZPOOL}/${JAILDATASET}/${JAILNAME}..."
+zfs clone "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}@clean" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 zfs set mkjail:version="${VERSION}" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
-
-# Extract the files
-for set in $(echo "${SETS}"); do
-    echo "Extracting ${set} into ${JAILROOT}/${JAILNAME}..."
-    tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/$set.txz -C ${JAILROOT}/${JAILNAME} ;
-done
+zfs set mountpoint="${JAILROOT}/${JAILNAME}" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 
 # Always use default flavor if it exists
 if [ -d /var/db/mkjail/flavours/default ] ; then
