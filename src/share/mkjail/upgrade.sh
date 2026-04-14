@@ -74,7 +74,7 @@ _upgradejail()
     # Unmount temp release datasets and set back to none
     zfs unmount -f "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}"
     zfs set mountpoint=none "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}"
-    rm -rf "${RELPATH}"
+    rmdir "${RELPATH}"
 
     PAGER=cat freebsd-update --not-running-from-cron -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf --currently-running ${TARGETVER} -F fetch install
     rm -rf ${JAILROOT}/${JAILNAME}/boot ${JAILROOT}/${JAILNAME}/src
@@ -139,7 +139,7 @@ _rollback()
     # Unmount temp release datasets if still mounted
     zfs unmount -f "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}" 2>/dev/null || true
     zfs set mountpoint=none "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}" 2>/dev/null || true
-    rm -rf "/tmp/mkjail-${TARGETVER}"
+    rmdir "/tmp/mkjail-${TARGETVER}"
     zfs rollback -r "${ZPOOL}/${JAILDATASET}/${JAILNAME}@${SNAPNAME}"
 }
 
