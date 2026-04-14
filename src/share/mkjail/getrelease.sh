@@ -100,6 +100,7 @@ _getrelease()
     zfs snapshot ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}@clean
 
     # Unmount datasets — they are only mounted temporarily during upgrades
+    zfs unmount -f ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}
     zfs set mountpoint=none ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}
 
     echo "Release ${VERSION} is ready for jail creation."
