@@ -36,13 +36,11 @@ _upgradejail()
     RELPATH="/tmp/mkjail-${TARGETVER}"
     mkdir -p "${RELPATH}"
     zfs set mountpoint="${RELPATH}" "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}"
-    zfs mount "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}"
 
     # Temporarily mount the src child dataset
     SRCPATH="${RELPATH}/src"
     mkdir -p "${SRCPATH}"
     zfs set mountpoint="${SRCPATH}" "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}/src"
-    zfs mount "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${TARGETVER}/src"
 
     chflags -f noschg ${JAILROOT}/${JAILNAME}/var/empty
     chflags -f noschg ${JAILROOT}/${JAILNAME}/usr/src
