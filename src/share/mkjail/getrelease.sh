@@ -40,33 +40,70 @@ _manifest()
 
 _getrelease()
 {
-    # Ensure we always have src and lib32 in the sets
-    SETS=$(echo "${SETS}" src lib32 | awk -v RS="[ \n]+" '!n[$0]++')
+    # Ensure we always have src in the sets
+    SETS=$(echo "${SETS}" src | awk -v RS="[ \n]+" '!n[$0]++')
 
     mkdir -p /var/db/mkjail/releases/${ARCH}/${VERSION}
 
     cd /var/db/mkjail/releases/${ARCH}/${VERSION}
 
-    echo "Fetching release manifest..."
-    fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/MANIFEST || fetch http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/${ARCH}/${VERSION}/MANIFEST || _cleanup
+    # If tarballs already exist locally, skip fetching
+    if [ -f base.txz ]; then
+        echo "Release tarballs for ${VERSION} already exist locally, skipping fetch."
+    else
+        echo "Fetching release manifest..."
+        fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/MANIFEST || fetch http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/${ARCH}/${VERSION}/MANIFEST || _cleanup
 
-    echo "Fetching release tarballs..."
-    for i in $(echo "${SETS}"); do 
-       fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/${i}.txz || fetch http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/${ARCH}/${VERSION}/${i}.txz || _cleanup
-    done
+        echo "Fetching release tarballs..."
+        for i in $(echo "${SETS}"); do
+           fetch https://download.freebsd.org/ftp/releases/${ARCH}/${VERSION}/${i}.txz || fetch http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/${ARCH}/${VERSION}/${i}.txz || _cleanup
+        done
 
-    _manifest || _cleanup
+        _manifest || _cleanup
+    fi
 
+    # Migrate old layout (dataset contained only src) to new layout
+    # (dataset contains full release, src is a child dataset)
+    if zfs list -H -o name "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}" >/dev/null 2>&1; then
+        if ! zfs list -H -o name "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}/src" >/dev/null 2>&1; then
+            echo "Migrating old ZFS dataset layout for ${VERSION}..."
+            zfs destroy -r -f "${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}"
+        fi
+    fi
+
+    # Create the ZFS dataset for this release
+    echo "Creating ZFS dataset for ${VERSION}..."
     zfs create -p ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}
 
     if [ "$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')" = "none" ]; then
         zfs set mountpoint=/mkjail ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}
     fi
 
-    SRCPATH="$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')/${VERSION}"
+    RELPATH="$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')/${VERSION}"
 
-    echo "Extracting src for use in jail upgrades..."
+    # Extract all sets except src into the release filesystem
+    for set in $(echo "${SETS}" | tr ' ' '\n' | grep -v '^src$'); do
+        echo "Extracting ${set} into ${RELPATH}..."
+        tar -xzpf /var/db/mkjail/releases/${ARCH}/${VERSION}/${set}.txz -C ${RELPATH}/
+    done
+
+    # Create src as a child ZFS dataset so it stays separate from jail deployments
+    echo "Creating child dataset for src..."
+    zfs create ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}/src
+    SRCPATH="${RELPATH}/src"
+
+    echo "Extracting src into child dataset..."
     tar -xzpf /var/db/mkjail/releases/${ARCH}/${VERSION}/src.txz -C ${SRCPATH}/
+
+    # Take a snapshot for cloning jails from
+    echo "Taking snapshot for jail creation..."
+    zfs snapshot ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}@clean
+
+    # Unmount datasets — they are only mounted temporarily during upgrades
+    zfs unmount -f ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}
+    zfs set mountpoint=none ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET}/${VERSION}
+
+    echo "Release ${VERSION} is ready for jail creation."
 }
 
 show_help() {
