@@ -49,7 +49,7 @@ _upgradejail()
 
     # Extract the target release over the existing jail, preserving /etc
     echo "Applying ${TARGETVER} release to jail..."
-    (cd ${RELPATH} && tar -cf - --exclude=etc --exclude=src .) | tar -xf - -C ${JAILROOT}/${JAILNAME}/ --clear-nochange-fflags || _cleanup
+    tar -cf - -C ${RELPATH} --exclude=etc --exclude=src . | tar -xf - -C ${JAILROOT}/${JAILNAME}/ --clear-nochange-fflags || _cleanup
 
     # Mount src from the target release
     mkdir -p ${JAILROOT}/${JAILNAME}/usr/src && mount -t nullfs -oro ${SRCPATH}/usr/src ${JAILROOT}/${JAILNAME}/usr/src
