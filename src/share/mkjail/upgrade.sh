@@ -111,11 +111,11 @@ _validate()
 #     pkgbase=$(pkg -j ${JAILNAME} which /usr/bin/uname)
 #     pkgbase=$(pkg -j ${JAILNAME} which /usr/bin/uname)
 #     if echo "$pkgbase" | grep -q "/usr/bin/uname was installed by package FreeBSD-runtime"
-     if pkg -j ${JAILNAME} which /usr/bin/uname
+     if pkg -j ${JAILNAME} which /usr/bin/uname >/dev/null 2>&1
      then
-         echo the jail ${JAILNAME} looks to be a pkgbase jail. Proceeding.
+         echo "The jail '${JAILNAME}' looks to be a pkgbase jail. Proceeding."
      else
-         echo jail ${JAILNAME} may not be a pkgbase jail. check the output of \'pkg -j ${JAILNAME} which /usr/bin/uname\'
+         echo "The jail '${JAILNAME}' may not be a pkgbase jail. Check the output of 'pkg -j ${JAILNAME} which /usr/bin/uname'"
          exit 1
      fi
 }
