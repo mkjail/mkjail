@@ -17,7 +17,8 @@ _get_version()
 
 _alljails()
 {
-    echo "Updating all jails..."
+    echo "Updating all jails... is not implemented"
+    exit 1
     echo ""
     for JAILNAME in $(jls -q name); do
       JAILPATH=$(jls -j ${JAILNAME} -q path)
@@ -38,7 +39,12 @@ _onejail()
     echo "Updating ${JAILNAME} jail..."
     echo ""
     export UNAME_r=$(_get_version)
-    PAGER=cat freebsd-update --not-running-from-cron -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf -F fetch install
+#    PAGER=cat freebsd-update --not-running-from-cron -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf -F fetch install
+    # this ensures the local pkg repo is up to date
+    PAGER=cat pkg -j ${JAILNAME} update -r FreeBSD-base
+
+    # this does the actual update, despite it being an 'upgrade'
+    PAGER=cat pkg -j ${JAILNAME} upgrade -yr FreeBSD-base
     _set_version
     exit 0
 }
