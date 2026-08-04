@@ -107,7 +107,7 @@ _validate()
 #    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/src.txz ] || _getrelease
 #    [ -d ${SRCPATH} ] || _getrelease
 
-     echo checking jail has pkgbase
+     echo "checking jail '${JAILNAME}' has pkgbase"
 #     pkgbase=$(pkg -j ${JAILNAME} which /usr/bin/uname)
 #     pkgbase=$(pkg -j ${JAILNAME} which /usr/bin/uname)
 #     if echo "$pkgbase" | grep -q "/usr/bin/uname was installed by package FreeBSD-runtime"
@@ -199,8 +199,6 @@ if [ ${aflag} -eq 1 ] && [ ${jflag} -eq 1 ]; then
 fi
 
 if [ ${aflag} -eq 1 ]; then
-    echo _alljails is not implemented
-    exit 1
 #    SRCPATH="$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')/${TARGETVER}"
     _alljails
 fi
