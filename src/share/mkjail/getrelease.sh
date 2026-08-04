@@ -89,6 +89,10 @@ exit_opts_req() {
     exit 1
 }
 
+
+echo "get release is not needed with pkg base"
+exit 0
+
 # option parsing has to happen below the show_help
 # shift to skip the first argument or getopts loses its mind
 shift
