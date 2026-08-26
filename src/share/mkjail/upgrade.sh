@@ -33,19 +33,12 @@ _upgradejail()
     echo ""
     chflags -f noschg ${JAILROOT}/${JAILNAME}/var/empty
     chflags -f noschg ${JAILROOT}/${JAILNAME}/usr/src
-#    tar --clear-nochange-fflags --exclude=etc -xzpf /var/db/mkjail/releases/${ARCH}/${TARGETVER}/base.txz -C ${JAILROOT}/${JAILNAME}/ || _cleanup
-#    if [ -d ${JAILROOT}/${JAILNAME}/usr/lib32 ] ; then
-#        tar --clear-nochange-fflags --exclude=etc -xzpf /var/db/mkjail/releases/${ARCH}/${TARGETVER}/lib32.txz -C ${JAILROOT}/${JAILNAME}/ || _cleanup
-#    fi
-#    mkdir -p ${JAILROOT}/${JAILNAME}/usr/src && mount -t nullfs -oro ${SRCPATH}/usr/src ${JAILROOT}/${JAILNAME}/usr/src
-#    jexec ${JAILNAME} etcupdate resolve || _cleanup
-#    jexec ${JAILNAME} etcupdate -F || _cleanup
 
     echo "Updating the repo..."
     pkg -j ${JAILNAME} update -r FreeBSD-base || _cleanup
     
     echo "Updating the base packages..."
-    # yeah, perhaps this needs to be a paramemter.
+    # yeah, perhaps the `FreeBSD-base` repo  needs to be a paramemter.
     pkg -j ${JAILNAME} -oABI=FreeBSD:15:$(uname -p) -oOSVERSION=1501000 upgrade -yr FreeBSD-base
 
 
@@ -58,12 +51,6 @@ _upgradejail()
       jexec ${JAILNAME} /usr/local/sbin/pkg-static upgrade -fy || _cleanup
     fi
 
-#    yes | jexec ${JAILNAME} make -C /usr/src delete-old
-#    yes | jexec ${JAILNAME} make -C /usr/src delete-old-libs
-
-#    umount -f ${JAILROOT}/${JAILNAME}/usr/src
-#    PAGER=cat freebsd-update --not-running-from-cron -b ${JAILROOT}/${JAILNAME} -f ${JAILROOT}/${JAILNAME}/etc/freebsd-update.conf --currently-running ${TARGETVER} -F fetch install
-#    rm -rf ${JAILROOT}/${JAILNAME}/boot ${JAILROOT}/${JAILNAME}/src
     _set_version
 }
 
@@ -101,16 +88,8 @@ _validate()
     # Capture mkjail:version zfs property for rollback
     export MKJAILVER="$(zfs get -H mkjail:version "${ZPOOL}/${JAILDATASET}/${JAILNAME}" | awk '{print $3}')"
 
-    # Check if we have the sets for the target version we are upgrading to
-#    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/base.txz ] || _getrelease
-#    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/lib32.txz ] || _getrelease
-#    [ -f /var/db/mkjail/releases/${ARCH}/${TARGETVER}/src.txz ] || _getrelease
-#    [ -d ${SRCPATH} ] || _getrelease
 
      echo "checking jail '${JAILNAME}' has pkgbase"
-#     pkgbase=$(pkg -j ${JAILNAME} which /usr/bin/uname)
-#     pkgbase=$(pkg -j ${JAILNAME} which /usr/bin/uname)
-#     if echo "$pkgbase" | grep -q "/usr/bin/uname was installed by package FreeBSD-runtime"
      if pkg -j ${JAILNAME} which /usr/bin/uname >/dev/null 2>&1
      then
          echo "The jail '${JAILNAME}' looks to be a pkgbase jail. Proceeding."
@@ -134,7 +113,6 @@ _snapshot()
 
 _rollback()
 {
-#    umount -f ${JAILROOT}/${JAILNAME}/usr/src
     zfs rollback -r "${ZPOOL}/${JAILDATASET}/${JAILNAME}@${SNAPNAME}"
 }
 
@@ -199,12 +177,10 @@ if [ ${aflag} -eq 1 ] && [ ${jflag} -eq 1 ]; then
 fi
 
 if [ ${aflag} -eq 1 ]; then
-#    SRCPATH="$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')/${TARGETVER}"
     _alljails
 fi
 
 if [ ${jflag} -eq 1 ]; then
-#    SRCPATH="$(zfs get -H mountpoint ${ZPOOL_MKJAIL_DB}/${MKJAILDATASET} | awk '{print $3}')/${TARGETVER}"
     _upgradejail
 fi
 
