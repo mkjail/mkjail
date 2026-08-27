@@ -79,9 +79,11 @@ _init() {
 
 _build() {
 # Make sure the release exists
+# NOTE: jail creation is currently always done from release tarballs,
+# even when PKGBASE="yes" is set, so force legacy mode for getrelease.
 if [ ! -d /var/db/mkjail/releases/${ARCH}/${VERSION} ]; then
     echo "Release ${VERSION} does not exist. Attempting to fetch..."
-    ${SCRIPTPREFIX}/getrelease.sh FAKEARG -s "${SETS}" -v ${VERSION}
+    PKGBASE=no ${SCRIPTPREFIX}/getrelease.sh FAKEARG -s "${SETS}" -v ${VERSION}
 fi
 
 # Make sure target flavor exists

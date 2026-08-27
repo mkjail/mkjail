@@ -6,6 +6,9 @@ trap _cleanup HUP INT QUIT KILL TERM ABRT
 sflag=0
 vflag=0
 
+# PKGBASE is exported by bin/mkjail from mkjail.conf.
+: ${PKGBASE:="no"}
+
 _cleanup()
 {
     echo ""
@@ -71,8 +74,10 @@ _getrelease()
 
 show_help() {
 cat <<HELP
-usage: mkjail getrelease [-s "SETS"] [-v VERSION]
+usage: mkjail getrelease [-b] [-s "SETS"] [-v VERSION]
 
+        -b pkgbase mode: release tarballs are not used, so this
+           command does nothing and exits successfully
         -s Sets: "base doc games lib32"
         -v Version of jail (9.3-RELEASE, 10.1-RELEASE, etc)
 
@@ -92,8 +97,10 @@ exit_opts_req() {
 # option parsing has to happen below the show_help
 # shift to skip the first argument or getopts loses its mind
 shift
-while getopts "hs:v:" opt; do
+while getopts "bhs:v:" opt; do
     case ${opt} in
+        b)  PKGBASE="yes"
+            ;;
         h)  show_help
             ;;
         s)  sflag=1; SETS=${OPTARG}
@@ -106,6 +113,11 @@ while getopts "hs:v:" opt; do
 done
 
 shift $(($OPTIND - 1))
+
+if [ "${PKGBASE}" = "yes" ]; then
+    echo "getrelease is not needed with pkgbase"
+    exit 0
+fi
 
 if [ ${vflag} -eq 0 ]; then
     exit_opts_req
