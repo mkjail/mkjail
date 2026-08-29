@@ -211,6 +211,8 @@ usage: mkjail upgrade [-b] [-a] [-v TARGETVER] | [-b] [-j JAILNAME] [-v TARGETVE
         -p pkg flag, y or n - do you want to upgrade the packages - defaults to y - never specify n if changing major versions.
 
 mkjail.sh: 2019, feld@FreeBSD.org
+           2026, dvl@FreeBSD.org
+           2026, zi@FreeBSD.org
 
 HELP
 exit 0

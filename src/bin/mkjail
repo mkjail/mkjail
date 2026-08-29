@@ -52,6 +52,8 @@ Jail base management method:
     or passing -b to the update/upgrade/getrelease commands.
 
 mkjail.sh: 2019, feld@FreeBSD.org
+           2026, dvl@FreeBSD.org
+           2026, zi@FreeBSD.org
 
 HELP
 exit 0

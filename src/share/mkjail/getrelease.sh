@@ -82,6 +82,8 @@ usage: mkjail getrelease [-b] [-s "SETS"] [-v VERSION]
         -v Version of jail (9.3-RELEASE, 10.1-RELEASE, etc)
 
 mkjail.sh: 2019, feld@FreeBSD.org
+           2026, dvl@FreeBSD.org
+           2026, zi@FreeBSD.org
 
 HELP
 exit 0

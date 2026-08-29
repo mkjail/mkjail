@@ -22,6 +22,8 @@ usage: mkjail create [-j JAILNAME] [-a ARCH] [-v VERSION] [-f FLAVOUR] [-s "SETS
 	-v Version of jail (9.3-RELEASE, 10.1-RELEASE, etc)
 
 mkjail.sh: 2019, feld@FreeBSD.org
+           2026, dvl@FreeBSD.org
+           2026, zi@FreeBSD.org
 
 HELP
 }

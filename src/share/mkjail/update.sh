@@ -76,6 +76,8 @@ usage: mkjail update [-b] [-a] | [-b] [-j JAILNAME]
         -j Jail name
 
 mkjail.sh: 2019, feld@FreeBSD.org
+           2026, dvl@FreeBSD.org
+           2026, zi@FreeBSD.org
 
 HELP
 exit 0

@@ -17,6 +17,10 @@ then to [his GitHub account](https://github.com/dlangille/mkjail).
 
 Shortly thereafter, https://github.com/mkjail/mkjail was created.
 
+When pkgbase came to FreeBSD, Dan converted the code to use pkgbase, not
+freebsd-update. zi went much farther with that and made the code
+dual-purpose: both freebsd-update and pkgbase.
+
 # getrelease
 
 When running getrelease, I advise not specifying the `-s` parameter. Just
