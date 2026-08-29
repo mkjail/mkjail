@@ -24,6 +24,10 @@ _alljails()
         echo "Updating ${JAILNAME} jail..."
         echo ""
         export UNAME_r=$(_get_version)
+        # this ensures the local pkg repo is up to date
+        PAGER=cat pkg -j ${JAILNAME} update -r FreeBSD-base
+
+        # this does the actual update, despite it being an 'upgrade'
         PAGER=cat pkg -j ${JAILNAME} upgrade -yr FreeBSD-base
         _set_version
       fi
@@ -37,11 +41,11 @@ _onejail()
     echo "Updating ${JAILNAME} jail..."
     echo ""
     export UNAME_r=$(_get_version)
+
     # this ensures the local pkg repo is up to date
     PAGER=cat pkg -j ${JAILNAME} update -r FreeBSD-base
 
     # this does the actual update, despite it being an 'upgrade'
-    # perhaps make the following a string, and use it here and above in _alljails()
     PAGER=cat pkg -j ${JAILNAME} upgrade -yr FreeBSD-base
     _set_version
     exit 0
