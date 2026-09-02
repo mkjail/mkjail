@@ -41,11 +41,19 @@ usage: mkjail command [options]
 
 Commands:
     create      -- Create jail
-    getrelease  -- Get FreeBSD release set tarballs
+    getrelease  -- Get FreeBSD release set tarballs (not needed for pkgbase)
     update      -- Update jail with latest FreeBSD security/errata patches
     upgrade     -- Upgrade jail to a newer RELEASE
 
+Jail base management method:
+    By default jails are managed the legacy way (freebsd-update and
+    release tarballs). Jails installed via pkgbase can instead be
+    managed with pkg by either setting PKGBASE="yes" in mkjail.conf
+    or passing -b to the update/upgrade/getrelease commands.
+
 mkjail.sh: 2019, feld@FreeBSD.org
+           2026, dvl@FreeBSD.org
+           2026, zi@FreeBSD.org
 
 HELP
 exit 0
@@ -68,6 +76,12 @@ _load_config() {
     : "${MKJAILDATASET:="mkjail"}"
     : "${JAILROOT:="/jails"}"
     : "${SETS:="base"}"
+    # PKGBASE: manage jail base with pkgbase (pkg + FreeBSD-base repo)
+    # instead of freebsd-update / release tarballs.
+    # Can also be enabled per-invocation with the -b option on
+    # update/upgrade/getrelease.
+    : "${PKGBASE:="no"}"
+    : "${PKGBASE_REPO:="FreeBSD-base"}"
 
     if [ "$ZPOOL" = "" ]; then
         echo "ZPOOL is required and must not be empty, " \
@@ -87,9 +101,16 @@ _load_config() {
         exit $EX_CONFIG
     fi
 
+    if [ "$PKGBASE" != "yes" ] && [ "$PKGBASE" != "no" ]; then
+        echo "PKGBASE must be 'yes' or 'no', " \
+            "check your configuration in $config_file." >&2
+        exit $EX_CONFIG
+    fi
+
     check_zfs_dataset_config "$ZPOOL/$JAILDATASET" "$JAILROOT" "$config_file"
 
     export ZPOOL ZPOOL_MKJAIL_DB JAILDATASET MKJAILDATASET JAILROOT SETS
+    export PKGBASE PKGBASE_REPO
 }
 
 [ $# -lt 1 ] && show_help

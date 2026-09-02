@@ -30,3 +30,18 @@ JAILROOT="/jails"
 # NOTE: src is always downloaded, regardless. It is needed when upgrading in
 # order to do a proper 3-way merge.
 SETS="base"
+
+# Manage jail base systems with pkgbase (pkg + a FreeBSD base package
+# repository) instead of the legacy freebsd-update / release tarball method.
+# When set to "yes", 'mkjail update' and 'mkjail upgrade' use
+# 'pkg -j <jail> update/upgrade -r ${PKGBASE_REPO}' and 'mkjail getrelease'
+# becomes a no-op. The jails must already have a pkgbase-installed base
+# system. Can also be enabled per-invocation with the -b option.
+# NOTE: 'mkjail create' currently always uses release tarballs.
+# DEFAULT: no
+#PKGBASE="no"
+
+# The pkg repository holding the base system packages, used when
+# PKGBASE="yes" (or -b is given).
+# DEFAULT: FreeBSD-base
+#PKGBASE_REPO="FreeBSD-base"

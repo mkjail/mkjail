@@ -17,6 +17,10 @@ then to [his GitHub account](https://github.com/dlangille/mkjail).
 
 Shortly thereafter, https://github.com/mkjail/mkjail was created.
 
+When pkgbase came to FreeBSD, Dan converted the code to use pkgbase, not
+freebsd-update. zi went much farther with that and made the code
+dual-purpose: both freebsd-update and pkgbase.
+
 # getrelease
 
 When running getrelease, I advise not specifying the `-s` parameter. Just
@@ -79,3 +83,34 @@ root dir as everything else you create below. (yeah, i know...)
     </pre>
 
 Have fun.
+
+# pkgbase support
+
+`mkjail` can manage jails whose base system was installed via
+[pkgbase](https://wiki.freebsd.org/PkgBase) (base system distributed as pkg
+packages) as an alternative to the legacy `freebsd-update` / release tarball
+method. Both methods live in the same scripts; you choose per host or per
+invocation.
+
+Enable it one of two ways:
+
+* Globally: set `PKGBASE="yes"` in `mkjail.conf` (optionally set
+  `PKGBASE_REPO` if your base repo is not named `FreeBSD-base`).
+* Per command: pass `-b` to `update`, `upgrade`, or `getrelease`.
+
+What changes in pkgbase mode:
+
+* `mkjail update -b -j foo` runs `pkg -j foo update -r FreeBSD-base` followed
+  by `pkg -j foo upgrade -yr FreeBSD-base` instead of `freebsd-update`.
+* `mkjail upgrade -b -j foo -v 15.1-RELEASE` still snapshots the jail first
+  (and rolls back on failure), verifies the jail actually has a pkgbase base
+  system, then upgrades the base packages with pkg using an ABI/OSVERSION
+  derived from the target version (override with `PKGBASE_ABI` /
+  `PKGBASE_OSVERSION` in the environment if needed). The installed-package
+  refresh controlled by `-p` works the same as in legacy mode.
+* `mkjail getrelease -b` is a no-op: release tarballs are not needed.
+* `mkjail create` currently always builds new jails from release tarballs,
+  regardless of the `PKGBASE` setting.
+
+Legacy behaviour is unchanged when `PKGBASE` is unset/`no` and `-b` is not
+given.

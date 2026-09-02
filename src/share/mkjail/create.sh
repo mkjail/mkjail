@@ -22,6 +22,8 @@ usage: mkjail create [-j JAILNAME] [-a ARCH] [-v VERSION] [-f FLAVOUR] [-s "SETS
 	-v Version of jail (9.3-RELEASE, 10.1-RELEASE, etc)
 
 mkjail.sh: 2019, feld@FreeBSD.org
+           2026, dvl@FreeBSD.org
+           2026, zi@FreeBSD.org
 
 HELP
 }
@@ -79,9 +81,11 @@ _init() {
 
 _build() {
 # Make sure the release exists
+# NOTE: jail creation is currently always done from release tarballs,
+# even when PKGBASE="yes" is set, so force legacy mode for getrelease.
 if [ ! -d /var/db/mkjail/releases/${ARCH}/${VERSION} ]; then
     echo "Release ${VERSION} does not exist. Attempting to fetch..."
-    ${SCRIPTPREFIX}/getrelease.sh FAKEARG -s "${SETS}" -v ${VERSION}
+    PKGBASE=no ${SCRIPTPREFIX}/getrelease.sh FAKEARG -s "${SETS}" -v ${VERSION}
 fi
 
 # Make sure target flavor exists
