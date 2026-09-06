@@ -59,6 +59,7 @@ _finish_legacy()
 # but can be overridden with PKGBASE_ABI / PKGBASE_OSVERSION.
 _upgrade_base_pkgbase()
 {
+    # XXX this code is duplicated in create.sh
     local MAJOR MINOR
     MAJOR=${TARGETVER%%[.-]*}
     case "${TARGETVER}" in

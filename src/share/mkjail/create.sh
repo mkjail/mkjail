@@ -105,6 +105,7 @@ if [ "${PKGBASE}" = "yes" ]; then
     tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/base.txz -C ${JAILROOT}/${JAILNAME} usr/share/keys
 
     # this needs the oABI stuff - see upgrade.sh:_upgrade_base_pkgbase() for details
+    # XXX this code is duplicated in upgrade.sh
     TARGETVER=$VERSION
     
     local MAJOR MINOR
@@ -117,7 +118,6 @@ if [ "${PKGBASE}" = "yes" ]; then
     : ${PKGBASE_OSVERSION:="$(( MAJOR * 100000 + MINOR * 1000 ))"}
 
     
-echo    pkg -oABI=${PKGBASE_ABI} -oOSVERSION=${PKGBASE_OSVERSION} --rootdir ${JAILROOT}/${JAILNAME} install -yr FreeBSD-base FreeBSD-set-base
     pkg -oABI=${PKGBASE_ABI} -oOSVERSION=${PKGBASE_OSVERSION} --rootdir ${JAILROOT}/${JAILNAME} install -yr FreeBSD-base FreeBSD-set-base
 else
     # Extract the files
