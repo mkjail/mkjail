@@ -100,9 +100,25 @@ zfs create "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 zfs set mkjail:version="${VERSION}" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 
 if [ "${PKGBASE}" = "yes" ]; then
-    tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/base.txz -C ${JAILROOT}/${JAILNAME} ;
+    # This grabs the keys from the right tarball
+    # perhaps we can start staging this instead of parsing the whole tarball each time
+    tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/base.txz -C ${JAILROOT}/${JAILNAME} usr/share/keys
 
-    pkg --rootdir ${JAILROOT}/${JAILNAME} install -r FreeBSD-base FreeBSD-set-base
+    # this needs the oABI stuff - see upgrade.sh:_upgrade_base_pkgbase() for details
+    TARGETVER=$VERSION
+    
+    local MAJOR MINOR
+    MAJOR=${TARGETVER%%[.-]*}
+    case "${TARGETVER}" in
+        *.*) MINOR=${TARGETVER#*.} ; MINOR=${MINOR%%-*} ;;
+        *)   MINOR=0 ;;
+    esac
+    : ${PKGBASE_ABI:="FreeBSD:${MAJOR}:$(uname -p)"}
+    : ${PKGBASE_OSVERSION:="$(( MAJOR * 100000 + MINOR * 1000 ))"}
+
+    
+echo    pkg -oABI=${PKGBASE_ABI} -oOSVERSION=${PKGBASE_OSVERSION} --rootdir ${JAILROOT}/${JAILNAME} install -yr FreeBSD-base FreeBSD-set-base
+    pkg -oABI=${PKGBASE_ABI} -oOSVERSION=${PKGBASE_OSVERSION} --rootdir ${JAILROOT}/${JAILNAME} install -yr FreeBSD-base FreeBSD-set-base
 else
     # Extract the files
     for set in $(echo "${SETS}"); do
