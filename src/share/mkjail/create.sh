@@ -99,11 +99,18 @@ echo "Creating ${ZPOOL}/${JAILDATASET}/${JAILNAME}..."
 zfs create "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 zfs set mkjail:version="${VERSION}" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 
-# Extract the files
-for set in $(echo "${SETS}"); do
-    echo "Extracting ${set} into ${JAILROOT}/${JAILNAME}..."
-    tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/$set.txz -C ${JAILROOT}/${JAILNAME} ;
-done
+if [ "${PKGBASE}" = "yes" ]; then
+    tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/base.txz -C ${JAILROOT}/${JAILNAME} ;
+
+    pkg --rootdir ${JAILROOT}/${JAILNAME} install -r FreeBSD-base FreeBSD-set-base
+else
+    # Extract the files
+    for set in $(echo "${SETS}"); do
+        echo "Extracting ${set} into ${JAILROOT}/${JAILNAME}..."
+        tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/$set.txz -C ${JAILROOT}/${JAILNAME} ;
+    done
+
+fi
 
 # Always use default flavor if it exists
 if [ -d /var/db/mkjail/flavours/default ] ; then
@@ -116,8 +123,6 @@ if [ x"${fflag}" = x1 ] && [ "${FLAVOUR}" != "default" ]; then
     echo "Copying in ${FLAVOUR} flavor..."
     cp -a /var/db/mkjail/flavours/${FLAVOUR}/ ${JAILROOT}/${JAILNAME}
 fi
-
-${SCRIPTPREFIX}/update.sh update -j ${JAILNAME}
 }
 
 _docs() {
