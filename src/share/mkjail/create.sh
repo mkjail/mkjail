@@ -99,11 +99,34 @@ echo "Creating ${ZPOOL}/${JAILDATASET}/${JAILNAME}..."
 zfs create "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 zfs set mkjail:version="${VERSION}" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 
-# Extract the files
-for set in $(echo "${SETS}"); do
-    echo "Extracting ${set} into ${JAILROOT}/${JAILNAME}..."
-    tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/$set.txz -C ${JAILROOT}/${JAILNAME} ;
-done
+if [ "${PKGBASE}" = "yes" ]; then
+    # This grabs the keys from the right tarball
+    # perhaps we can start staging this instead of parsing the whole tarball each time
+    tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/base.txz -C ${JAILROOT}/${JAILNAME} usr/share/keys
+
+    # this needs the oABI stuff - see upgrade.sh:_upgrade_base_pkgbase() for details
+    # XXX this code is duplicated in upgrade.sh
+    TARGETVER=$VERSION
+    
+    local MAJOR MINOR
+    MAJOR=${TARGETVER%%[.-]*}
+    case "${TARGETVER}" in
+        *.*) MINOR=${TARGETVER#*.} ; MINOR=${MINOR%%-*} ;;
+        *)   MINOR=0 ;;
+    esac
+    : ${PKGBASE_ABI:="FreeBSD:${MAJOR}:$(uname -p)"}
+    : ${PKGBASE_OSVERSION:="$(( MAJOR * 100000 + MINOR * 1000 ))"}
+
+    
+    pkg -oABI=${PKGBASE_ABI} -oOSVERSION=${PKGBASE_OSVERSION} --rootdir ${JAILROOT}/${JAILNAME} install -yr FreeBSD-base FreeBSD-set-base
+else
+    # Extract the files
+    for set in $(echo "${SETS}"); do
+        echo "Extracting ${set} into ${JAILROOT}/${JAILNAME}..."
+        tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/$set.txz -C ${JAILROOT}/${JAILNAME} ;
+    done
+
+fi
 
 # Always use default flavor if it exists
 if [ -d /var/db/mkjail/flavours/default ] ; then
@@ -116,8 +139,6 @@ if [ x"${fflag}" = x1 ] && [ "${FLAVOUR}" != "default" ]; then
     echo "Copying in ${FLAVOUR} flavor..."
     cp -a /var/db/mkjail/flavours/${FLAVOUR}/ ${JAILROOT}/${JAILNAME}
 fi
-
-${SCRIPTPREFIX}/update.sh update -j ${JAILNAME}
 }
 
 _docs() {
