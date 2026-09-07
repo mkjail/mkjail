@@ -139,6 +139,12 @@ if [ x"${fflag}" = x1 ] && [ "${FLAVOUR}" != "default" ]; then
     echo "Copying in ${FLAVOUR} flavor..."
     cp -a /var/db/mkjail/flavours/${FLAVOUR}/ ${JAILROOT}/${JAILNAME}
 fi
+
+# jail has to be running to pkgbase upgrade it
+# but it is not running yet
+if [ "${PKGBASE}" != "yes" ]; then
+    ${SCRIPTPREFIX}/update.sh update -j ${JAILNAME}
+fi
 }
 
 _docs() {
