@@ -80,12 +80,10 @@ _init() {
 }
 
 _build() {
-# Make sure the release exists
-# NOTE: jail creation is currently always done from release tarballs,
-# even when PKGBASE="yes" is set, so force legacy mode for getrelease.
-if [ ! -d /var/db/mkjail/releases/${ARCH}/${VERSION} ]; then
+# Make sure the release exists for non-pkgbase installs
+if [ ${PKGBASE} != "yes" ] && [ ! -d /var/db/mkjail/releases/${ARCH}/${VERSION} ]; then
     echo "Release ${VERSION} does not exist. Attempting to fetch..."
-    PKGBASE=no ${SCRIPTPREFIX}/getrelease.sh FAKEARG -s "${SETS}" -v ${VERSION}
+    ${SCRIPTPREFIX}/getrelease.sh FAKEARG -s "${SETS}" -v ${VERSION}
 fi
 
 # Make sure target flavor exists
@@ -100,10 +98,6 @@ zfs create "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 zfs set mkjail:version="${VERSION}" "${ZPOOL}/${JAILDATASET}/${JAILNAME}"
 
 if [ "${PKGBASE}" = "yes" ]; then
-    # This grabs the keys from the right tarball
-    # perhaps we can start staging this instead of parsing the whole tarball each time
-    tar -xf /var/db/mkjail/releases/${ARCH}/${VERSION}/base.txz -C ${JAILROOT}/${JAILNAME} usr/share/keys
-
     # this needs the oABI stuff - see upgrade.sh:_upgrade_base_pkgbase() for details
     # XXX this code is duplicated in upgrade.sh
     TARGETVER=$VERSION
@@ -114,11 +108,12 @@ if [ "${PKGBASE}" = "yes" ]; then
         *.*) MINOR=${TARGETVER#*.} ; MINOR=${MINOR%%-*} ;;
         *)   MINOR=0 ;;
     esac
-    : ${PKGBASE_ABI:="FreeBSD:${MAJOR}:$(uname -p)"}
-    : ${PKGBASE_OSVERSION:="$(( MAJOR * 100000 + MINOR * 1000 ))"}
+    : ${ABI:="FreeBSD:${MAJOR}:${ARCH}"}
+    : ${OSVERSION:="$(( MAJOR * 100000 + MINOR * 1000 ))"}
+    BSDINSTALL_CHROOT="${JAILROOT}/${JAILNAME}"
+    export ABI OSVERSION BSDINSTALL_CHROOT
 
-    
-    pkg -oABI=${PKGBASE_ABI} -oOSVERSION=${PKGBASE_OSVERSION} --rootdir ${JAILROOT}/${JAILNAME} install -yr FreeBSD-base FreeBSD-set-base
+    (yes no | bsdinstall pkgbase --jail --non-interactive > /dev/null) || (echo "Error: pkgbase may not supported for ${ABI} or repository is not reachable" && exit 1)
 else
     # Extract the files
     for set in $(echo "${SETS}"); do

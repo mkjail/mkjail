@@ -29,6 +29,8 @@ JAILROOT="/jails"
 #
 # NOTE: src is always downloaded, regardless. It is needed when upgrading in
 # order to do a proper 3-way merge.
+#
+# This setting has no effect for PKGBASE jails which always install via FreeBSD-set-base-jail
 SETS="base"
 
 # Manage jail base systems with pkgbase (pkg + a FreeBSD base package
