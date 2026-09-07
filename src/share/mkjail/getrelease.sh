@@ -116,11 +116,6 @@ done
 
 shift $(($OPTIND - 1))
 
-if [ "${PKGBASE}" = "yes" ]; then
-    echo "getrelease is not needed with pkgbase"
-    exit 0
-fi
-
 if [ ${vflag} -eq 0 ]; then
     exit_opts_req
 fi
