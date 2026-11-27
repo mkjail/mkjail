@@ -96,7 +96,9 @@ Enable it one of two ways:
 
 * Globally: set `PKGBASE="yes"` in `mkjail.conf` (optionally set
   `PKGBASE_REPO` if your base repo is not named `FreeBSD-base`).
-* Per command: pass `-b` to `update`, `upgrade`, or `getrelease`.
+* Per command: pass `-b` to `create`, `update`, `upgrade`, or `getrelease`.
+  `create -B` does the opposite: it installs from release tarballs even when
+  `PKGBASE="yes"`.
 
 What changes in pkgbase mode:
 
@@ -109,8 +111,12 @@ What changes in pkgbase mode:
   `PKGBASE_OSVERSION` in the environment if needed). The installed-package
   refresh controlled by `-p` works the same as in legacy mode.
 * `mkjail getrelease -b` is a no-op: release tarballs are not needed.
-* `mkjail create` currently always builds new jails from release tarballs,
-  regardless of the `PKGBASE` setting.
+* `mkjail create -b -j foo -v 15.1-RELEASE` installs the base system with
+  `bsdinstall pkgbase --jail`. This needs FreeBSD 15.0 or later: older base
+  repositories have no `FreeBSD-set-*` packages, so for those `create` stops
+  before creating anything and suggests `-B` (release tarballs) instead.
+  If the install itself fails, the new dataset is left in place and `create`
+  prints the `zfs destroy` command to remove it.
 
 Legacy behaviour is unchanged when `PKGBASE` is unset/`no` and `-b` is not
 given.
